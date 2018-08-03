@@ -1,0 +1,20 @@
+Package: inflmix
+Type: Package
+Title: Estimates the One-Inflated Positive Poisson Mixture Model (OIPPMM)
+Version: 0.1.0
+Author: Ryan T. Godwin
+Maintainer: Ryan T. Godwin <ryan.godwin@umanitoba.ca>
+Description: Estimates the parameters of the one-inflated positive Poisson
+    model (OIPPMM) using an EM algorithm. If no starting values are provided,
+    it begins with a grid search over two mixture components, and then runs an
+    EM algorithm. The process is repeated with an additional mixture component 
+    until the non-parametric MLE is found (i.e. until the addition of a
+    component yields no improvement in the likelihood function). It also
+    generates OIPPMM variates, and calculates Horvitz-Thompson population size
+    estimates.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    maxLik
+RoxygenNote: 6.0.1
