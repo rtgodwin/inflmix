@@ -18,6 +18,6 @@ rinflmixN <- function(N, l, p) {
   y <- y[y != 0]
   change1s <- runif(length(y), 0, 1)
   y[change1s <= (1 - sum(p))] <- 1
-  y[change1s <= (1 - p)] <- 1
+  y[change1s <= (1 - sum(p))] <- 1
   return(y)
 }
