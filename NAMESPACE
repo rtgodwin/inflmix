@@ -2,6 +2,7 @@
 
 export(inflmix)
 export(rinflmix)
+export(rinflmixN)
 export(sumOIPPMM)
 import(stats)
 import(utils)
