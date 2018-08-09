@@ -35,6 +35,10 @@ rinflmix <- function(n, l, p) {
   # One-inflate the data
   change1s <- runif(n,0,1)
   y[change1s <= (1 - sum(p))] <- 1
+<<<<<<< HEAD
+=======
+  y[change1s <= (1 - p)] <- 1
+>>>>>>> 0d2110682b68fbdea6da274071ebc6e9fb2fc441
   y[change1s <= (1 - sum(p))] <- 1
   results <- list(y = y, n0 = n0)
   return(results)
