@@ -24,5 +24,9 @@ y <- rinflmixN(N=500, l=c(1,4), p=c(.4,.4))
 sumOIPPMM(inflmix(y))
 }
 \seealso{
+<<<<<<< HEAD
 \code{\link{inflmix}}, \code{\link{sumOIPPMM}}, \code{\link{rinflmix}}
+=======
+\code{\link{inflmix}}, \code{\link{sumOIPPMM}}
+>>>>>>> c858a79c766762dec7751da972d9b480f1a5c1c4
 }
