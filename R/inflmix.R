@@ -65,14 +65,17 @@
 #' @import stats
 #' @import utils
 #' @export
-inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1e4, minlam=0.01, reduntol=0.05, maxk = 4) {
+inflmix <- function(y, l=NULL, p=NULL, K=NULL, tol=.00001, maxLikmethod="nr",
+                    maxiters=1e4, minlam=0.01, reduntol=0.05, maxk = 4) {
 
-  if(!is.integer(y) && !is.numeric(y)) {stop("y must be of type integer or numeric")}
+  if(!is.integer(y) && !is.numeric(y)) {
+    stop("y must be of type integer or numeric")}
   if(is.numeric(y) && !floor(y)==y) {stop("y must contain only integers")}
   if(any(y < 1)) {stop("y must be positive")}
   if(is.matrix(y) && ncol(y) > 1) {stop("y must be one-dimensional")}
   if(length(l) != length(p)) {stop("l and p must have the same dimension")}
-  if(!is.null(l) && is.null(p) || is.null(l) && !is.null(p)) {stop("l and p must be initialized together, or not at all")}
+  if(!is.null(l) && is.null(p) || is.null(l) && !is.null(p)) {
+    stop("l and p must be initialized together, or not at all")}
 
   y <- as.integer(y)
 
@@ -81,7 +84,8 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
       dpois(y, lk) / (1 - dpois(0, lk))
     }
     bigk <- length(l)
-    sum(log(rowSums(sapply(1:bigk, function(j) p[j] * pmfpp(y, l[j]))) + (y == 1) * (1 - sum(p))))
+    sum(log(rowSums(sapply(1:bigk, function(j) p[j] * pmfpp(y, l[j])))
+            + (y == 1) * (1 - sum(p))))
   }
 
   inflmgrid <- function(y, bigk, nlam = 10, npi = 3) {
@@ -90,7 +94,8 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
     pis <- expand.grid(replicate(bigk + 1, 1:npi, simplify=F))
     pis <- pis / rowSums(pis)
     pis <- as.matrix(pis[1:(nrow(pis) - 1), 1:bigk])
-    loglmat <- sapply(1:nrow(lams), function(q) sapply(1:nrow(pis), function(r) oippmmlogl(y, lams[q, ], pis[r, ])))
+    loglmat <- sapply(1:nrow(lams), function(q) sapply(1:nrow(pis), function(r) {
+      oippmmlogl(y, lams[q, ], pis[r, ])}))
     coords <- which(loglmat == max(loglmat), arr.ind = T)
     list(l = lams[coords[1, 2],], p = pis[coords[1, 1],])
   }
@@ -104,12 +109,14 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
 
     # Not the real log-l. Omits terms not relevant for optimization
     logl <- function(l) {
-      sum(sapply(1:bigk, function(j) {sum(w[, j] * (y * log(l[j]) - log(exp(l[j]) - 1)))}))
+      sum(sapply(1:bigk, function(j) {sum(w[, j] * (y * log(l[j])
+                                                    - log(exp(l[j]) - 1)))}))
     }
 
     # Calculate the weights based on the current values of the lambdas and "pi"s
     getweights <- function(p, l) {
-      denom <- rowSums(sapply(1:bigk, function(j) {p[j] * pmfpp(y, l[j])})) + (1 - sum(p)) * (y == 1)
+      denom <- rowSums(sapply(1:bigk, function(j) {p[j] * pmfpp(y, l[j])}))
+      + (1 - sum(p)) * (y == 1)
       sapply(1:bigk, function(j) {p[j] * pmfpp(y, l[j]) / denom})
     }
 
@@ -125,7 +132,7 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
 
       w <- getweights(p, l)
 
-      # Maximize the log-likelihood (equation (6)), and obtain vector of lambda_hats
+      # Maximize the log-likelihood (eq. 6), and obtain vector of lambda_hats
       lhat <- maxLik::maxLik(logl, method=maxLikmethod, start=l)$estimate
 
       # Update the "pi"s
@@ -146,12 +153,15 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
     z$pi <- phat
     z$logl <- oippmmlogl(y, lhat, phat)
     z$n <- length(y)
-    z$predicted <- z$n * sapply(1:max(y), function(i) {sum(sapply(1:bigk, function(j) {p[j] * pmfpp(i, l[j])})) + (1 - sum(p)) * (i == 1)})
+    z$predicted <- z$n * sapply(1:max(y), function(i) {sum(sapply(
+      1:bigk, function(j) {p[j] * pmfpp(i, l[j])})) + (1 - sum(p)) * (i == 1)})
     z$chisq <- sum(((tabulate(y) - z$predicted) ^ 2) / z$predicted)
-    z$HTn0 <- sum(sapply(1:bigk, function(j) {(p[j] / sum(p)) * (z$n / (1 - exp(-l[j])) - z$n)}))
+    z$HTn0 <- sum(sapply(1:bigk, function(j) {(p[j] / sum(p))
+      * (z$n / (1 - exp(-l[j])) - z$n)}))
     z
   }
-  if(is.null(l)) {
+
+  if(is.null(l) && is.null(K)) {
     bigk <- 2
     zz <- list()
     class(zz) <- "inflmixNPMLE"
@@ -159,7 +169,9 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
       start <- inflmgrid(y, bigk)
       zz[[bigk - 1]] <- estimate(start$l, start$p)
       names(zz)[bigk - 1] <- paste("K =", bigk)
-      if(any(abs(combn(zz[[bigk - 1]]$lambda, 2)[1, ] - combn(zz[[bigk - 1]]$lambda, 2)[2, ]) < reduntol) || any(zz[[bigk - 1]]$lambda < minlam)) {
+      if(any(abs(combn(zz[[bigk - 1]]$lambda, 2)[1, ] -
+                 combn(zz[[bigk - 1]]$lambda, 2)[2, ]) < reduntol)
+         || any(zz[[bigk - 1]]$lambda < minlam)) {
         zz$termreasNPMLE <- paste("NPMLE found: K =", (bigk - 1))
         return(zz)
       }
@@ -169,6 +181,10 @@ inflmix <- function(y, l=NULL, p=NULL, tol=.00001, maxLikmethod="nr", maxiters=1
         return(zz)
       }
     }
+  } else if(!is.null(K)) {
+    bigk <- K
+    start <- inflmgrid(y, bigk)
+    return(estimate(start$l, start$p))
   } else {
     bigk <- length(l)
     return(estimate(l, p))
