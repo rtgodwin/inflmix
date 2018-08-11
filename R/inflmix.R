@@ -156,8 +156,8 @@ inflmix <- function(y, l=NULL, p=NULL, K=NULL, tol=.00001, maxLikmethod="nr",
     z$predicted <- z$n * sapply(1:max(y), function(i) {sum(sapply(
       1:bigk, function(j) {p[j] * pmfpp(i, l[j])})) + (1 - sum(p)) * (i == 1)})
     z$chisq <- sum(((tabulate(y) - z$predicted) ^ 2) / z$predicted)
-    z$HTn0 <- sum(sapply(1:bigk, function(j) {(p[j] / sum(p))
-      * (z$n / (1 - exp(-l[j])) - z$n)}))
+    z$HTn0 <- sum(sapply(1:bigk, function(j) {
+      (p[j] / sum(p)) * (z$n / (1 - exp(-l[j])) - z$n)}))
     z
   }
 
