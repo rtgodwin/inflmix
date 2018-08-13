@@ -13,10 +13,14 @@
 #' @import utils
 #' @export
 rinflmixN <- function(N, l, p) {
-  lmixed <- sample(l, N, replace = T, prob = p)
+  # Use a transformation similar to one from Boehnig and Kuhnert (2006)
+  q <- sapply(1:length(p), function(j) {
+    p[j] / (1 - dpois(0, l[j])) / (sum(p / (1 - dpois(0, l))) + (1 - sum(p)))
+  })
+  lmixed <- sample(l, N, replace = T, prob = q)
   y <- rpois(N, lmixed)
   y <- y[y != 0]
   change1s <- runif(length(y), 0, 1)
-  y[change1s <= (1 - sum(p))] <- 1
+  y[change1s <= (1 - sum(q))] <- 1
   return(y)
 }
