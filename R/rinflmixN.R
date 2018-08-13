@@ -15,7 +15,7 @@
 rinflmixN <- function(N, l, p) {
   # Use a transformation similar to one from Boehning and Kuhnert (2006)
   q <- sapply(1:length(p), function(j) {
-    p[j] / (1 - dpois(0, l[j])) / (sum(p / (1 - dpois(0, l))) + (1 - sum(p)))
+    p[j] / (1 - dpois(0, l[j])) / (sum(p / (1 - dpois(0, l))))
   })
   lmixed <- sample(l, N, replace = T, prob = q)
   y <- rpois(N, lmixed)
