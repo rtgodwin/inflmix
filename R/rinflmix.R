@@ -5,10 +5,10 @@
 #' @param p pi, a vector of weights for the mixture components
 #' @return returns a list containing \code{y} (the generated variates) and \code{n0}
 #' (the number of 0s from the Poisson process that were discarded)
-#' @seealso \code{\link{inflmix}}, \code{\link{sumOIPPMM}}
+#' @seealso \code{\link{inflmix}}, \code{\link{rinflmixN}}
 #' @examples
 #' y <- rinflmix(n=50, l=c(1,4), p=c(.4,.4))$y
-#' sumOIPPMM(inflmix(y))
+#' inflmix(y)
 #' @import stats
 #' @import utils
 #' @export

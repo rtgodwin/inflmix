@@ -4,8 +4,9 @@
 \alias{inflmix}
 \title{Estimate the one-inflated positive Poisson mixture model (OIPPMM)}
 \usage{
-inflmix(y, l = NULL, p = NULL, tol = 1e-05, maxLikmethod = "nr",
-  maxiters = 10000, minlam = 0.01, reduntol = 0.05, maxk = 4)
+inflmix(y, l = NULL, p = NULL, K = NULL, tol = 1e-05,
+  maxLikmethod = "nr", maxiters = 10000, minlam = 0.01, reduntol = 0.05,
+  maxk = 4)
 }
 \arguments{
 \item{y}{A vector of positive integers.}
@@ -13,12 +14,17 @@ inflmix(y, l = NULL, p = NULL, tol = 1e-05, maxLikmethod = "nr",
 \item{l}{lambda, a vector of starting values for the positive Poisson
 components. If \code{NULL}, starting values will be found via grid search,
 and mixture models with successively more components will be estimated
-until the non-parametric MLE is found.}
+until the non-parametric MLE is found, or \code{maxk} is reached.}
 
 \item{p}{pi, a vector of starting values for the mixture weights.
 \code{l} and \code{p} must be initialized together, or not at all. If
 \code{NULL}, grid search and estimation for successive numbers of mixture
-components will commence until the non-parametric MLE is found.}
+components will commence until the non-parametric MLE is found, or \code{maxk}
+is reached.}
+
+\item{K}{the number of components to be estimated in the OIPPMM. If \code{NULL},
+mixture models with successively more components will be estimated until the
+non-parametric MLE is found, or \code{maxk} is reached.}
 
 \item{tol}{Tolerance of the EM algorithm. The EM algorithm proceeds until the
 proportional difference between all successive parameter estimates for
@@ -77,13 +83,17 @@ If \code{inflmix} is called with starting values for \code{l} and
 Estimate the one-inflated positive Poisson mixture model (OIPPMM)
 }
 \examples{
-require(maxLik)
-# Search for the non-parametric MLE
-sumOIPPMM(inflmix(1:20))
+# Estimate several OIPPMMs with increasing number of components, until adding an
+# additional component yields no improvement in the log-likelihood.
+zz <- inflmix(1:20)
+# The custom print method displays results in table
+zz
 # Provide starting values instead of searching for the NPMLE
 inflmix(1:20, l=c(1, 4), p=c(.4, .4))
+# Fix the number of components, without providing starting values
+inflmix(1:20, K = 2)
 }
 \seealso{
-\code{\link{sumOIPPMM}} for a table of summary statistics, and
-\code{\link{rinflmix}} for the generation of OIPPMM variates.
+\code{\link{rinflmix}} and \code{\link{rinflmixN}} for the generation of
+  random numbers from the OIPPMM.
 }

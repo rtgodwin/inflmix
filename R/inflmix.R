@@ -4,11 +4,15 @@
 #' @param l lambda, a vector of starting values for the positive Poisson
 #'   components. If \code{NULL}, starting values will be found via grid search,
 #'   and mixture models with successively more components will be estimated
-#'   until the non-parametric MLE is found.
+#'   until the non-parametric MLE is found, or \code{maxk} is reached.
 #' @param p pi, a vector of starting values for the mixture weights.
 #'   \code{l} and \code{p} must be initialized together, or not at all. If
 #'   \code{NULL}, grid search and estimation for successive numbers of mixture
-#'   components will commence until the non-parametric MLE is found.
+#'   components will commence until the non-parametric MLE is found, or \code{maxk}
+#'   is reached.
+#' @param K the number of components to be estimated in the OIPPMM. If \code{NULL},
+#'   mixture models with successively more components will be estimated until the
+#'   non-parametric MLE is found, or \code{maxk} is reached.
 #' @param tol Tolerance of the EM algorithm. The EM algorithm proceeds until the
 #'   proportional difference between all successive parameter estimates for
 #'   lambda and pi are less than \code{tol}. Default is 0.001\%.
@@ -54,14 +58,18 @@
 #'   in the search for the non-parametric MLE. An additional object is also provided:
 #'   \code{termreasNPMLE} which documents the reason for the termination of the search
 #'   for the NPMLE (either NPMLE found, or \code{maxk} reached).
-#' @seealso \code{\link{sumOIPPMM}} for a table of summary statistics, and
-#' \code{\link{rinflmix}} for the generation of OIPPMM variates.
+#' @seealso \code{\link{rinflmix}} and \code{\link{rinflmixN}} for the generation of
+#'   random numbers from the OIPPMM.
 #' @examples
-#' require(maxLik)
-#' # Search for the non-parametric MLE
-#' sumOIPPMM(inflmix(1:20))
+#' # Estimate several OIPPMMs with increasing number of components, until adding an
+#' # additional component yields no improvement in the log-likelihood.
+#' zz <- inflmix(1:20)
+#' # The custom print method displays results in table
+#' zz
 #' # Provide starting values instead of searching for the NPMLE
 #' inflmix(1:20, l=c(1, 4), p=c(.4, .4))
+#' # Fix the number of components, without providing starting values
+#' inflmix(1:20, K = 2)
 #' @import stats
 #' @import utils
 #' @export
@@ -111,7 +119,7 @@ inflmix <- function(y, l=NULL, p=NULL, K=NULL, tol=.00001, maxLikmethod="nr",
       sum(sapply(1:bigk, function(j) {sum(w[, j] * (y * log(l[j]) - log(exp(l[j]) - 1)))}))
     }
 
-    # Calculate the weights based on the current values of the lambdas and "pi"s
+    # Estimate the weights based on the current values of the lambdas and "pi"s
     getweights <- function(p, l) {
       denom <- rowSums(sapply(1:bigk, function(j) {p[j] * pmfpp(y, l[j])})) + (1 - sum(p)) * (y == 1)
       sapply(1:bigk, function(j) {p[j] * pmfpp(y, l[j]) / denom})
@@ -159,20 +167,22 @@ inflmix <- function(y, l=NULL, p=NULL, K=NULL, tol=.00001, maxLikmethod="nr",
   }
 
   if(is.null(l) && is.null(K)) {
-    bigk <- 2
+    bigk <- 1
     zz <- list()
     class(zz) <- "inflmixNPMLE"
     repeat {
       start <- inflmgrid(y, bigk)
-      zz[[bigk - 1]] <- estimate(start$l, start$p)
-      names(zz)[bigk - 1] <- paste("K =", bigk)
-      if(any(abs(combn(zz[[bigk - 1]]$lambda, 2)[1, ] - combn(zz[[bigk - 1]]$lambda, 2)[2, ]) < reduntol) || any(zz[[bigk - 1]]$lambda < minlam)) {
+      zz[[bigk]] <- estimate(start$l, start$p)
+      names(zz)[bigk] <- paste("K =", bigk)
+      if(bigk > 1 && any(abs(combn(zz[[bigk]]$lambda, 2)[1, ] - combn(zz[[bigk]]$lambda, 2)[2, ]) < reduntol) || any(zz[[bigk]]$lambda < minlam)) {
         zz$termreasNPMLE <- paste("NPMLE found: K =", (bigk - 1))
+        zz$KNPMLE <- bigk - 1
         return(zz)
       }
       bigk <- bigk + 1
       if(bigk > maxk) {
         zz$termreasNPMLE <- "max K reached"
+        zz$KNPMLE <- NULL
         return(zz)
       }
     }

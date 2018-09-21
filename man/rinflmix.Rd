@@ -22,8 +22,8 @@ Generate variates from the OIPPMM.
 }
 \examples{
 y <- rinflmix(n=50, l=c(1,4), p=c(.4,.4))$y
-sumOIPPMM(inflmix(y))
+inflmix(y)
 }
 \seealso{
-\code{\link{inflmix}}, \code{\link{sumOIPPMM}}
+\code{\link{inflmix}}, \code{\link{rinflmixN}}
 }

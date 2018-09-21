@@ -2,7 +2,7 @@
 % Please edit documentation in R/rinflmixN.R
 \name{rinflmixN}
 \alias{rinflmixN}
-\title{Generate variates from the OIPPMM, beginning with unknown population size, \code{N}.}
+\title{Generate \code{n} variates from the OIPPMM, beginning with unknown population size, \code{N}.}
 \usage{
 rinflmixN(N, l, p)
 }
@@ -17,16 +17,12 @@ rinflmixN(N, l, p)
 a vector of generated OIPPMM variates
 }
 \description{
-Generate variates from the OIPPMM, beginning with unknown population size, \code{N}.
+Generate \code{n} variates from the OIPPMM, beginning with unknown population size, \code{N}.
 }
 \examples{
 y <- rinflmixN(N=500, l=c(1,4), p=c(.4,.4))
-sumOIPPMM(inflmix(y))
+inflmix(y)
 }
 \seealso{
-<<<<<<< HEAD
-\code{\link{inflmix}}, \code{\link{sumOIPPMM}}, \code{\link{rinflmix}}
-=======
-\code{\link{inflmix}}, \code{\link{sumOIPPMM}}
->>>>>>> c858a79c766762dec7751da972d9b480f1a5c1c4
+\code{\link{inflmix}}, \code{\link{rinflmix}}
 }
